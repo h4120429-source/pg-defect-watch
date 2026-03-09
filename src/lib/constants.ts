@@ -34,4 +34,13 @@ export const ODU_DEFECTS = [
 
 export const SESSION_DURATION_MS = 12 * 60 * 60 * 1000; // 12 hours
 
+// Admin credentials
+export const ADMIN_EMAIL = "admin@pgelectroplast.com";
 export const ADMIN_PASSWORD = "admin123";
+
+// Location-specific passwords
+export const LOCATION_PASSWORDS: Record<string, string> = {
+  Pune: "pune123",
+  Noida: "noida123",
+  Bhiwadi: "bhiwadi123",
+};

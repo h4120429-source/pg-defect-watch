@@ -14,7 +14,8 @@ const EmployeeLogin = () => {
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    // Mock login — in production this checks Firestore EmployeeUsers
+    // Mock login — in production checks Firestore EmployeeUsers collection
+    // Only admin-created employee IDs work
     if (employeeId && password) {
       createSession({
         employeeId,
@@ -34,7 +35,7 @@ const EmployeeLogin = () => {
           <div className="flex flex-col items-center mb-6">
             <PGLogo size="lg" />
             <h1 className="mt-4 text-xl font-bold text-foreground">Employee Login</h1>
-            <p className="text-sm text-muted-foreground mt-1">Enter your credentials to continue</p>
+            <p className="text-sm text-muted-foreground mt-1">Enter your credentials provided by admin</p>
           </div>
 
           <div className="space-y-4">
@@ -61,8 +62,7 @@ const EmployeeLogin = () => {
             {error && <p className="text-sm text-center text-destructive">{error}</p>}
 
             <p className="text-xs text-center text-muted-foreground">
-              Don't have access?{" "}
-              <a href="/employee/register" className="text-primary underline">Register here</a>
+              Contact your admin to get login credentials
             </p>
           </div>
         </CardContent>
