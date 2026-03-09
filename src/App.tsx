@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminPortal from "./pages/AdminPortal";
 import EmployeeLogin from "./pages/EmployeeLogin";
 import EmployeeRegistration from "./pages/EmployeeRegistration";
 import DefectForm from "./pages/DefectForm";
@@ -26,6 +27,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminGuard><AdminDashboard /></AdminGuard>} />
+          <Route path="/admin/portal" element={<AdminGuard><AdminPortal /></AdminGuard>} />
           <Route path="/employee" element={<EmployeeLogin />} />
           <Route path="/employee/register" element={<EmployeeRegistration />} />
           <Route path="/employee/defect-form" element={<DefectForm />} />
