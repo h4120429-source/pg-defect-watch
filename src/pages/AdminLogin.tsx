@@ -1,24 +1,38 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Lock } from "lucide-react";
+import { Lock, Mail, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import PGLogo from "@/components/PGLogo";
-import { ADMIN_PASSWORD } from "@/lib/constants";
+import { ADMIN_EMAIL, ADMIN_PASSWORD, LOCATIONS, LOCATION_PASSWORDS } from "@/lib/constants";
 
 const AdminLogin = () => {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [location, setLocation] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    if (password === ADMIN_PASSWORD) {
-      localStorage.setItem("pg_admin_auth", "true");
-      navigate("/admin/dashboard");
-    } else {
-      setError("Invalid password");
+    if (!email || !password || !location) {
+      setError("Please fill all fields");
+      return;
     }
+    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+      setError("Invalid email or password");
+      return;
+    }
+    if (LOCATION_PASSWORDS[location] !== password && password !== ADMIN_PASSWORD) {
+      setError("Invalid credentials");
+      return;
+    }
+    localStorage.setItem("pg_admin_auth", "true");
+    localStorage.setItem("pg_admin_location", location);
+    localStorage.setItem("pg_admin_email", email);
+    navigate("/admin/dashboard");
   };
 
   return (
@@ -28,15 +42,41 @@ const AdminLogin = () => {
           <div className="flex flex-col items-center mb-6">
             <PGLogo size="lg" />
             <h1 className="mt-4 text-xl font-bold text-foreground">PCB Defect Monitoring</h1>
-            <p className="text-sm text-muted-foreground mt-1">Enter password to access dashboard</p>
+            <p className="text-sm text-muted-foreground mt-1">Admin Login</p>
           </div>
 
           <div className="space-y-4">
+            <div className="space-y-1.5">
+              <Label>Location</Label>
+              <Select value={location} onValueChange={(v) => { setLocation(v); setError(""); }}>
+                <SelectTrigger>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <SelectValue placeholder="Select Location" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  {LOCATIONS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="email"
+                placeholder="Admin Email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                className="pl-10"
+              />
+            </div>
+
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="password"
-                placeholder="Enter Password"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => { setPassword(e.target.value); setError(""); }}
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
@@ -50,7 +90,10 @@ const AdminLogin = () => {
 
             {error && <p className="text-sm text-center text-destructive">{error}</p>}
 
-            <p className="text-xs text-center text-muted-foreground">Default password: admin123</p>
+            <div className="text-xs text-center text-muted-foreground space-y-0.5">
+              <p>Email: admin@pgelectroplast.com</p>
+              <p>Password: admin123</p>
+            </div>
           </div>
         </CardContent>
       </Card>
