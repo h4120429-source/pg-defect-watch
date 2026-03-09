@@ -7,14 +7,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import PGLogo from "@/components/PGLogo";
-import { PLANTS, LOCATIONS, LINES, SHIFTS, UNIT_TYPES, SEVERITIES, ACTIONS, IDU_DEFECTS, ODU_DEFECTS } from "@/lib/constants";
+import { getPlants, getLocations, getLines, IDU_DEFECTS, ODU_DEFECTS, UNIT_TYPES, SEVERITIES, ACTIONS } from "@/lib/constants";
 import { getSession, isSessionValid } from "@/lib/session";
 import { toast } from "@/hooks/use-toast";
 import { LogOut, Clock } from "lucide-react";
+import pcbIdu from "@/assets/pcb-idu.jpg";
+import pcbOdu from "@/assets/pcb-odu.jpg";
+
+const SHIFTS = ["Morning", "Evening"];
 
 const DefectForm = () => {
   const navigate = useNavigate();
   const session = getSession();
+  const plants = getPlants();
+  const locations = getLocations();
+  const lines = getLines();
 
   const [plant, setPlant] = useState("");
   const [location, setLocation] = useState("");
@@ -36,9 +43,7 @@ const DefectForm = () => {
             <Clock className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
             <h2 className="text-lg font-semibold">Session Expired</h2>
             <p className="text-sm text-muted-foreground mt-2">Your session has expired. Please request admin approval to log in again.</p>
-            <Button onClick={() => navigate("/employee")} className="mt-4 bg-primary text-primary-foreground">
-              Back to Login
-            </Button>
+            <Button onClick={() => navigate("/employee")} className="mt-4 bg-primary text-primary-foreground">Back to Login</Button>
           </CardContent>
         </Card>
       </div>
@@ -46,18 +51,15 @@ const DefectForm = () => {
   }
 
   const defectsList = unitType === "IDU" ? IDU_DEFECTS : unitType === "ODU" ? ODU_DEFECTS : [];
+  const pcbImage = unitType === "IDU" ? pcbIdu : unitType === "ODU" ? pcbOdu : null;
 
   const handleSubmit = () => {
     if (!plant || !location || !line || !shift || !unitType || !defect || !severity || !action || !model) {
       toast({ title: "Error", description: "Please fill all required fields", variant: "destructive" });
       return;
     }
-    // Mock submit — in production writes to Firestore
     toast({ title: "Success", description: "Defect report submitted successfully!" });
-    setDefect("");
-    setModel("");
-    setQuantity("1");
-    setRemark("");
+    setDefect(""); setModel(""); setQuantity("1"); setRemark("");
   };
 
   return (
@@ -69,13 +71,25 @@ const DefectForm = () => {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-muted-foreground">{session.employeeName} ({session.employeeId})</span>
-          <Button variant="outline" size="sm" onClick={() => { navigate("/employee"); }}>
+          <Button variant="outline" size="sm" onClick={() => navigate("/employee")}>
             <LogOut className="h-4 w-4 mr-1" /> Logout
           </Button>
         </div>
       </header>
 
       <div className="max-w-2xl mx-auto p-4">
+        {/* PCB Reference Image */}
+        {pcbImage && (
+          <Card className="mb-4">
+            <CardContent className="pt-4 pb-4 flex flex-col items-center">
+              <p className="text-xs font-semibold text-muted-foreground tracking-widest mb-2">
+                {unitType} PCB REFERENCE
+              </p>
+              <img src={pcbImage} alt={`${unitType} PCB Board`} className="max-h-48 rounded-lg border object-contain" />
+            </CardContent>
+          </Card>
+        )}
+
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Submit Defect Report</CardTitle>
@@ -86,21 +100,21 @@ const DefectForm = () => {
                 <Label>Plant *</Label>
                 <Select value={plant} onValueChange={setPlant}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>{PLANTS.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                  <SelectContent>{plants.map((p: string) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
                 <Label>Location *</Label>
                 <Select value={location} onValueChange={setLocation}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>{LOCATIONS.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent>
+                  <SelectContent>{locations.map((l: string) => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
                 <Label>Line *</Label>
                 <Select value={line} onValueChange={setLine}>
                   <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                  <SelectContent>{LINES.map(l => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent>
+                  <SelectContent>{lines.map((l: string) => <SelectItem key={l} value={l}>{l}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
@@ -151,9 +165,7 @@ const DefectForm = () => {
               <Label>Remark</Label>
               <Textarea value={remark} onChange={(e) => setRemark(e.target.value)} placeholder="Optional remark..." />
             </div>
-            <Button onClick={handleSubmit} className="w-full bg-primary text-primary-foreground">
-              Submit Defect Report
-            </Button>
+            <Button onClick={handleSubmit} className="w-full bg-primary text-primary-foreground">Submit Defect Report</Button>
           </CardContent>
         </Card>
       </div>
